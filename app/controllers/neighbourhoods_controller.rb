@@ -3,8 +3,28 @@ class NeighbourhoodsController < ApplicationController
 
   # GET /neighbourhoods
   def index
+    # chains db query, so it waits until the end when you render @neighbourhoods
+    # active record is a wrapper around db so you can write sql queries using ruby
+    # eg .all gets everything from db
     @neighbourhoods = Neighbourhood.all
 
+    # ? at end of methods denote boolean (rails convention)
+    if params[:max_home_price].present?
+      @neighbourhoods = @neighbourhoods.where('home_price <= ?', params[:max_home_price])
+    end
+
+    if params[:min_home_price].present?
+      @neighbourhoods = @neighbourhoods.where('home_price >= ?', params[:min_home_price])
+    end
+
+    if params[:ranked_by].present?
+      @neighbourhoods = @neighbourhoods.order(params[:ranked_by].to_sym => :desc)
+    end
+
+    if params[:coords].present?
+      @neighbourhoods = Location.nearest_neighbourhood(params[:coords])
+    end
+    
     render json: @neighbourhoods
   end
 
@@ -38,6 +58,7 @@ class NeighbourhoodsController < ApplicationController
     @neighbourhood.destroy
   end
 
+  # only accessible within this controller
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_neighbourhood
