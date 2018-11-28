@@ -24,7 +24,7 @@ class NeighbourhoodsController < ApplicationController
     if params[:coords].present?
       @neighbourhoods = Location.nearest_neighbourhood(params[:coords])
     end
-    
+  
     render json: @neighbourhoods
   end
 
